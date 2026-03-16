@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold text-primary" href="#">
+      <i class="bi bi-phone-vibrate"></i> PhoneCheck
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto fw-medium align-items-lg-center">
+        <li class="nav-item"><a class="nav-link" href="#about">{{ t.nav.about }}</a></li>
+        <li class="nav-item"><a class="nav-link" href="#features">{{ t.nav.features }}</a></li>
+        <li class="nav-item"><a class="nav-link" href="#check">{{ t.nav.check }}</a></li>
+        <li class="nav-item"><a class="nav-link" href="#price">{{ t.nav.price }}</a></li>
+
+        <li class="nav-item dropdown ms-lg-3">
+          <a class="nav-link dropdown-toggle text-dark" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-globe"></i> {{ current_lang | upper }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="langDropdown">
+              {% for lang_api_name, lang_text in languages.items() %}
+              <li>
+                  <a class="dropdown-item" href="?lang={{ lang_api_name }}">{{ lang_text }}</a>
+              </li>
+              {% endfor %}
+          </ul>
+        </li>
+      </ul>
+      <a href="#price" class="btn btn-primary ms-lg-3 rounded-pill px-4">{{ t.nav.order }}</a>
+    </div>
+  </div>
+</nav>
+
+<section class="py-5 bg-light text-center text-lg-start">
+  <div class="container py-5">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <h1 class="display-4 fw-bold text-dark mb-3">{{ t.hero.title }}</h1>
+        <p class="lead text-muted mb-4">{{ t.hero.subtitle }}</p>
+        <a href="#price" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm">{{ t.hero.btn_check_now }}</a>
+      </div>
+      <div class="col-lg-6 text-center">
+        <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=800&auto=format&fit=crop" alt="Phone Check" class="img-fluid rounded-4 shadow-lg" style="max-height: 400px; object-fit: cover;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">{{ t.features.title }}</h2>
+      <p class="text-muted">{{ t.features.subtitle }}</p>
+    </div>
+    <div class="row g-4 text-center">
+      <div class="col-md-4">
+        <div class="p-4 rounded-4 bg-light h-100 border-0 shadow-sm">
+          <div class="text-primary mb-3 display-5"><i class="bi bi-shield-check"></i></div>
+          <h4 class="fw-bold">{{ t.features.item1_title }}</h4>
+          <p class="text-muted mb-0">{{ t.features.item1_desc }}</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-4 rounded-4 bg-light h-100 border-0 shadow-sm">
+          <div class="text-primary mb-3 display-5"><i class="bi bi-lightning-charge"></i></div>
+          <h4 class="fw-bold">{{ t.features.item2_title }}</h4>
+          <p class="text-muted mb-0">{{ t.features.item2_desc }}</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-4 rounded-4 bg-light h-100 border-0 shadow-sm">
+          <div class="text-primary mb-3 display-5"><i class="bi bi-wallet2"></i></div>
+          <h4 class="fw-bold">{{ t.features.item3_title }}</h4>
+          <p class="text-muted mb-0">{{ t.features.item3_desc }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="check" class="py-5 bg-light">
+  <div class="container py-4">
+    <h2 class="text-center fw-bold mb-5">{{ t.check.title }}</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {% for item in check_items %}
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm rounded-4">
+          <div class="card-body d-flex align-items-center">
+            <i class="bi bi-check-circle-fill text-success fs-4 me-3"></i>
+            <p class="card-text fw-medium mb-0">{{ item }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="price" class="py-5">
+  <div class="container py-5 text-center">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="card border-primary border-2 shadow-lg rounded-4 overflow-hidden">
+          <div class="bg-primary text-white py-4">
+            <h3 class="mb-0 fw-bold">{{ t.pricing.title }}</h3>
+          </div>
+          <div class="card-body py-5">
+
+          <h5 class="text-muted mb-4 fw-normal">{{ t.pricing.whats_included.title }}</h5>
+
+          <div class="text-start w-75 mx-auto mb-5">
+              {% for key, section in t.pricing.whats_included.items() %}
+                  {% if key != 'title' %}
+                  <div class="mb-3">
+                      <div class="d-flex align-items-center mb-1">
+                          <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                          <span class="fw-bold text-dark">{{ section.title }}</span>
+                      </div>
+                      <div class="ms-4 text-muted small">
+                          {{ section.subtitle | join(', ') }}
+                      </div>
+                  </div>
+                  {% endif %}
+              {% endfor %}
+          </div>
+
+            <hr class="w-75 mx-auto mb-4 text-muted">
+
+            <div class="mb-4">
+                <span class="d-block fs-5 text-muted mb-1">{{ t.pricing.check_label }}</span>
+                <h2 class="display-4 fw-bold text-dark mb-0">{{ price }} <span class="fs-4 text-muted">{{ t.pricing.currency }}</span></h2>
+            </div>
+
+            <div class="mb-5 p-4 bg-light rounded-4 w-100 mx-auto border border-2 border-light shadow-sm">
+                <div class="d-flex align-items-center justify-content-center mb-2">
+                  <i class="bi bi-geo-alt-fill text-danger fs-4 me-2"></i>
+                  <span class="fs-5 fw-bold text-dark">{{ t.pricing.onsite_title }}</span>
+                </div>
+                <p class="text-muted small mb-4">{{ t.pricing.onsite_desc }}</p>
+
+                <div class="d-flex flex-column gap-3 text-start">
+                    {% for location, p_val in on_site_visit.items() %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom border-secondary-subtle pb-2">
+                        <span class="fw-medium text-dark">
+                            <i class="bi bi-pin-map text-secondary me-2"></i>{{ location }}
+                        </span>
+                        <span class="fw-bold text-primary fs-5">
+                            +{{ p_val }} <small class="text-muted fw-normal fs-6">{{ t.pricing.currency }}</small>
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button class="buy-btn btn btn-primary btn-lg rounded-pill px-5 w-100 py-3 fw-bold shadow-sm">
+              {{ t.pricing.btn_order }}
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="how-it-works" class="py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">{{ t.how_it_works.title }}</h2>
+      <p class="text-muted">{{ t.how_it_works.subtitle }}</p>
+    </div>
+
+    <div class="row g-4 text-center position-relative">
+      <div class="col-md-4">
+        <div class="p-4">
+          <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle mb-4 shadow" style="width: 80px; height: 80px;">
+            <i class="bi bi-search fs-1"></i>
+          </div>
+          <h4 class="fw-bold">{{ t.how_it_works.step1.title }}</h4>
+          <p class="text-muted">{{ t.how_it_works.step1.desc }}</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-4">
+          <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle mb-4 shadow" style="width: 80px; height: 80px;">
+            <i class="bi bi-credit-card fs-1"></i>
+          </div>
+          <h4 class="fw-bold">{{ t.how_it_works.step2.title }}</h4>
+          <p class="text-muted">{{ t.how_it_works.step2.desc }}</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-4">
+          <div class="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle mb-4 shadow" style="width: 80px; height: 80px;">
+            <i class="bi bi-file-earmark-check fs-1"></i>
+          </div>
+          <h4 class="fw-bold">{{ t.how_it_works.step3.title }}</h4>
+          <p class="text-muted">{{ t.how_it_works.step3.desc }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer class="bg-dark text-white text-center py-4">
+  <div class="container">
+    <p class="mb-0 text-white-50">{{ t.footer.copyright }}</p>
+  </div>
+</footer>
+
+{% endblock %}

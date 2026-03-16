@@ -1,0 +1,10 @@
+check_price: 150
+on_site_visit:
+  Поділ: 100
+  Левада: 100
+  Центр: 100
+  Інше місце: 150
+languages:
+  ua: 🇺🇦 Українська
+  en: 🇬🇧 English
+  ru: 🇷🇺 Русский

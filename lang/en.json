@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "about": "About",
+    "features": "Features",
+    "check": "What we check",
+    "price": "Pricing",
+    "order": "Order check"
+  },
+  "hero": {
+    "title": "Complete phone check before purchase",
+    "subtitle": "Ensure the authenticity of the device and its technical condition. Get a fast report by IMEI and databases in just a few seconds.",
+    "btn_check_now": "Check now"
+  },
+  "features": {
+    "title": "Why choose us",
+    "subtitle": "Protect yourself from scammers and hidden defects",
+    "item1_title": "Reliability",
+    "item1_desc": "Data is collected from official registries and closed service center databases.",
+    "item2_title": "Speed",
+    "item2_desc": "The report is generated automatically within a few seconds after the request.",
+    "item3_title": "Savings",
+    "item3_desc": "A small fee for the check will save you from buying a broken or stolen device."
+  },
+  "check": {
+    "title": "What is included in the check"
+  },
+  "pricing": {
+    "title": "Cost of services",
+    "whats_included": {
+      "title": "What's included:",
+      "legality": {
+        "title": "legality",
+        "subtitle": ["IMEI", "blocking", "leasing", "MDM"]
+      },
+      "refurbished": {
+        "title": "Refurbished",
+        "subtitle": ["Refurbished", "lost seal"]
+      },
+      "state": {
+        "title": "State",
+        "subtitle": ["battery", "drowned", "hidden defects"]
+      },
+      "display": {
+        "title": "Display",
+        "subtitle": ["originality", "replacement", "burn-in", "glares"]
+      }
+    },
+    "Legality": "Legality",
+    "check_label": "Check:",
+    "currency": "UAH",
+    "onsite_title": "Specialist visit in Poltava",
+    "onsite_desc": "Personal inspection of the device at the meeting place with the seller. The cost depends on the district:",
+    "btn_order": "Order check"
+  },
+  "footer": {
+    "copyright": "© 2026 PhoneCheck. All rights reserved."
+  }
+}

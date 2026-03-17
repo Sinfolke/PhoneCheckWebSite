@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-light min-vh-100 d-flex align-items-center">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-5">
+        
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+          <div class="card-body p-5">
+            
+            <div class="text-center mb-4">
+              <a href="/" class="text-decoration-none">
+                <h2 class="fw-bold text-primary mb-1">
+                  <i class="bi bi-phone-vibrate"></i> PhoneCheck
+                </h2>
+              </a>
+              <p class="text-muted">Создайте аккаунт для заказа проверок</p>
+            </div>
+
+            <form action="/register" method="POST">
+              
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control rounded-3" id="regName" name="name" placeholder="Иван Иванов" required>
+                <label for="regName" class="text-muted">Ваше имя</label>
+              </div>
+
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control rounded-3" id="regEmail" name="email" placeholder="name@example.com" required>
+                <label for="regEmail" class="text-muted">Email адрес</label>
+              </div>
+              
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control rounded-3" id="regPassword" name="password" placeholder="Пароль" required>
+                <label for="regPassword" class="text-muted">Пароль</label>
+              </div>
+
+              <div class="form-floating mb-4">
+                <input type="password" class="form-control rounded-3" id="regPasswordConfirm" name="password_confirm" placeholder="Повторите пароль" required>
+                <label for="regPasswordConfirm" class="text-muted">Повторите пароль</label>
+              </div>
+
+              <button class="btn btn-primary btn-lg w-100 rounded-pill fw-bold shadow-sm mb-3" type="submit">
+                Создать аккаунт
+              </button>
+
+              <p class="text-muted small text-center mb-0">
+                Нажимая кнопку, вы соглашаетесь с <br>
+                <a href="/terms" class="text-decoration-none">Условиями использования сервиса</a>.
+              </p>
+            </form>
+
+            <div class="text-center mt-4 pt-4 border-top">
+              <p class="text-muted small mb-0">Уже есть аккаунт? 
+                <a href="/login" class="text-primary fw-bold text-decoration-none">Войти</a>
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

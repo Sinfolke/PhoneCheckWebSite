@@ -2,35 +2,32 @@
 
 {% block content %}
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-  <div class="container">
-    <a class="navbar-brand fw-bold text-primary" href="#">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top" style="z-index: 1040;">
+  <div class="container-fluid px-4"> <a class="navbar-brand fw-bold text-primary" href="/">
       <i class="bi bi-phone-vibrate"></i> PhoneCheck
     </a>
-    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+  <li class="nav-item dropend"> <a class="nav-link dropdown-toggle text-dark px-3 py-2 rounded-3" href="#" id="langDropdownSide" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-globe me-2 text-primary"></i>{{ current_lang | upper }}
+    </a>
+    <ul class="dropdown-menu shadow-sm border-0" aria-labelledby="langDropdownSide">
+          {% for lang_api_name, lang_text in languages.items() %}
+          <li>
+              <a class="dropdown-item" href="?lang={{ lang_api_name }}">{{ lang_text }}</a>
+          </li>
+          {% endfor %}
+    </ul>
+  </li>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto fw-medium align-items-lg-center">
-        <li class="nav-item"><a class="nav-link" href="#about">{{ t.nav.about }}</a></li>
-        <li class="nav-item"><a class="nav-link" href="#features">{{ t.nav.features }}</a></li>
-        <li class="nav-item"><a class="nav-link" href="#check">{{ t.nav.check }}</a></li>
-        <li class="nav-item"><a class="nav-link" href="#price">{{ t.nav.price }}</a></li>
 
-        <li class="nav-item dropdown ms-lg-3">
-          <a class="nav-link dropdown-toggle text-dark" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-globe"></i> {{ current_lang | upper }}
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="langDropdown">
-              {% for lang_api_name, lang_text in languages.items() %}
-              <li>
-                  <a class="dropdown-item" href="?lang={{ lang_api_name }}">{{ lang_text }}</a>
-              </li>
-              {% endfor %}
-          </ul>
-        </li>
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav mx-auto fw-medium align-items-lg-center">
+        <li class="nav-item"><a class="nav-link active" href="/">Главная</a></li>
+        <li class="nav-item"><a class="nav-link" href="/b2b">Для бизнеса</a></li> <li class="nav-item"><a class="nav-link" href="/faq">Вопросы и ответы</a></li> <li class="nav-item"><a class="nav-link" href="/contacts">Контакты</a></li>
       </ul>
-      <a href="#price" class="btn btn-primary ms-lg-3 rounded-pill px-4">{{ t.nav.order }}</a>
+
+      <a href="#price" class="btn btn-primary rounded-pill px-4 shadow-sm">{{ t.nav.order }}</a>
     </div>
   </div>
 </nav>
@@ -156,9 +153,9 @@
                 </div>
             </div>
 
-            <button class="buy-btn btn btn-primary btn-lg rounded-pill px-5 w-100 py-3 fw-bold shadow-sm">
+            <a href="/login" class="btn btn-primary btn-lg rounded-pill px-5 w-100 py-3 fw-bold shadow-sm">
               {{ t.pricing.btn_order }}
-            </button>
+            </a>
 
           </div>
         </div>

@@ -24,7 +24,7 @@ async def register(us: UserCreate, db: AsyncSession):
     hashed_pwd = hashing.hash_password(us.password)
 
     # 3. Создаем объект пользователя (пароль в чистом виде забываем!)
-    new_user = User(email=us.email, hashed_password=hashed_pwd)
+    new_user = User(name=us.name, email=us.email, hashed_password=hashed_pwd)
 
     # 4. Сохраняем в базу данных
     db.add(new_user)

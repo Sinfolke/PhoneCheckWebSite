@@ -9,9 +9,10 @@ router = APIRouter()
 
 
 @router.post("/register")
-async def register_router(email: str = Form(), password: str = Form(), db: AsyncSession = Depends(get_db)):
-    await Service.register(UserCreate(email=email, password=password), db)
-    return
+async def register_router(name: str = Form(), email: str = Form(), password: str = Form(), db: AsyncSession = Depends(get_db)):
+    await Service.register(UserCreate(email=email, name=name, password=password), db)
+    response = RedirectResponse(url="/login", status_code=302)
+    return response
 
 @router.post("/login")
 async def login_router(email: str = Form(), password: str = Form(), db: AsyncSession = Depends(get_db)):

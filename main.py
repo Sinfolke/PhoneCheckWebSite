@@ -62,4 +62,10 @@ async def account_page(
         "request": request,
         "user": user
     })
+@app.get("/order/full-check")
+async def full_check_page(request: Request, user = Depends(hashing.user_by_jwt_token)):
+    return templates.TemplateResponse("full_check.html", {
+        "request": request,
+        "user": user
+    })
 app.include_router(routers.account.router)

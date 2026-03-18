@@ -46,24 +46,19 @@ async def user_by_jwt_token(request: Request, db: AsyncSession = Depends(get_db)
         token = token.split(" ")[1]
 
     try:
-        # Проверь, совпадает ли SECRET_KEY здесь с тем, которым ты создавал токен!
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        print(f"2. Успешно расшифровали, email: {email}")
-
-        if email is None:
+        user_id_str: str = payload.get("sub")  # Теперь мы знаем, что тут лежит ID
+        if user_id_str is None:
             return None
 
-    except jwt.ExpiredSignatureError:
-        print("-> Ошибка: Токен просрочен!")
-        return None
-    except jwt.PyJWTError as e:
-        print(f"-> Ошибка расшифровки JWT: {e}")
+        user_id = int(user_id_str)  # Переводим обратно в число (если у тебя ID числовой)
+
+    except (jwt.PyJWTError, ValueError):
         return None
 
-    query = select(User).where(User.email == email)
+        # Ищем пользователя по ID, а не по Email
+    query = select(User).where(User.id == user_id)
     result = await db.execute(query)
     user = result.scalar_one_or_none()
 
-    print(f"3. Нашли пользователя в БД: {user}")
     return user

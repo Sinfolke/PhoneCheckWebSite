@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+  .step-container { display: none; }
+  .step-container.active { display: block; animation: fadeIn 0.5s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  
+  /* Стили для сканера */
+  .scanner-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; border-radius: 1rem; overflow: hidden; background: #000; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+  #camera-feed { width: 100%; display: block; object-fit: cover; }
+  #overlay-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+  
+  /* Анимация сканирования (вспышка) */
+  .scan-flash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 20; opacity: 0; pointer-events: none; }
+  .scan-flash.active { animation: flashAnim 0.4s ease-out; }
+  @keyframes flashAnim { 0% { opacity: 0.8; } 100% { opacity: 0; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-light min-vh-100 py-4">
+  <div class="container" style="max-width: 700px;">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="fw-bold mb-0">Отчет: {{ order.device_model }}</h4>
+      <span class="badge bg-primary rounded-pill">Заказ #{{ order.id }}</span>
+    </div>
+
+    <div id="step-1" class="step-container active">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold border-bottom pb-2 mb-4"><i class="bi bi-phone me-2"></i>Шаг 1: Внешний вид</h5>
+          
+          <form id="physical-form" onsubmit="event.preventDefault(); nextStep(2);">
+            
+            <div class="mb-4">
+              <label class="form-label fw-bold text-dark">Состояние экрана</label>
+              <div class="d-flex gap-2 flex-wrap">
+                <input type="radio" class="btn-check" name="screen" id="screen_perfect" value="perfect" required>
+                <label class="btn btn-outline-success rounded-pill px-3 py-2" for="screen_perfect">Идеал</label>
+
+                <input type="radio" class="btn-check" name="screen" id="screen_scratches" value="scratches">
+                <label class="btn btn-outline-warning rounded-pill px-3 py-2" for="screen_scratches">Царапины</label>
+
+                <input type="radio" class="btn-check" name="screen" id="screen_broken" value="broken">
+                <label class="btn btn-outline-danger rounded-pill px-3 py-2" for="screen_broken">Разбит/Заменен</label>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold text-dark">Корпус и грани</label>
+              <div class="d-flex gap-2 flex-wrap">
+                <input type="radio" class="btn-check" name="body" id="body_perfect" value="perfect" required>
+                <label class="btn btn-outline-success rounded-pill px-3 py-2" for="body_perfect">Без следов</label>
+
+                <input type="radio" class="btn-check" name="body" id="body_dents" value="dents">
+                <label class="btn btn-outline-warning rounded-pill px-3 py-2" for="body_dents">Потертости/Вмятины</label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">
+              Перейти к сканированию системы <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="step-2" class="step-container">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4 text-center">
+          <h5 class="fw-bold mb-1"><i class="bi bi-cpu me-2"></i>Шаг 2: Системные данные</h5>
+          <p class="text-muted small mb-3">Зайдите в <b>Настройки -> Основные -> Об устройстве</b></p>
+          
+          <div class="scanner-wrapper mb-3">
+            <video id="camera-feed" autoplay playsinline muted></video>
+            <canvas id="overlay-canvas"></canvas>
+            <div id="scan-flash" class="scan-flash"></div>
+          </div>
+          
+          <div id="ocr-status" class="alert alert-secondary py-2 fw-medium mb-3">
+            <i class="bi bi-camera-video me-1"></i> Включение камеры...
+          </div>
+
+          <div id="server-hint" class="text-primary fw-bold small mt-2" style="min-height: 20px;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // --- НАВИГАЦИЯ ПО ШАГАМ ---
+  function nextStep(step) {
+    document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+    document.getElementById(`step-${step}`).classList.add('active');
+    
+    if(step === 2) {
+      startSmartScanner();
+    }
+  }
+
+  // --- УМНЫЙ СКАНЕР (ДЕТЕКТОР ДВИЖЕНИЯ + ОТПРАВКА) ---
+  const video = document.getElementById('camera-feed');
+  const overlayCanvas = document.getElementById('overlay-canvas');
+  const ctx = overlayCanvas.getContext('2d');
+  const statusEl = document.getElementById('ocr-status');
+  const hintEl = document.getElementById('server-hint');
+  const flashEl = document.getElementById('scan-flash');
+
+  // Скрытый канвас для анализа пикселей и создания фото
+  const hiddenCanvas = document.createElement('canvas');
+  const hCtx = hiddenCanvas.getContext('2d', { willReadFrequently: true });
+
+  let isScanning = false;
+  let previousImageData = null;
+  let steadyFramesCount = 0; // Считаем, сколько кадров телефон неподвижен
+  const STEADY_THRESHOLD = 3; // Нужны 3 спокойных кадра подряд (~1 секунда), чтобы отправить на сервер
+
+  async function startSmartScanner() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } 
+      });
+      video.srcObject = stream;
+      
+      video.onloadedmetadata = () => {
+        // Синхронизируем размеры
+        overlayCanvas.width = video.videoWidth;
+        overlayCanvas.height = video.videoHeight;
+        hiddenCanvas.width = video.videoWidth;
+        hiddenCanvas.height = video.videoHeight;
+        
+        // Запускаем цикл детекции движения (каждые 300мс)
+        setInterval(detectMotionAndScan, 300);
+      };
+    } catch (err) {
+      statusEl.className = "alert alert-danger py-2 fw-medium mb-3";
+      statusEl.innerHTML = "<i class='bi bi-x-circle'></i> Ошибка камеры. Разрешите доступ.";
+    }
+  }
+
+  // Функция оценки движения
+  function detectMotionAndScan() {
+    if (isScanning || video.paused || video.ended) return;
+
+    hCtx.drawImage(video, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+    const currentImageData = hCtx.getImageData(0, 0, hiddenCanvas.width, hiddenCanvas.height);
+    
+    // Если это первый кадр
+    if (!previousImageData) {
+      previousImageData = currentImageData;
+      return;
+    }
+
+    // Сравниваем пиксели (упрощенный быстрый алгоритм)
+    let diffScore = 0;
+    const data1 = currentImageData.data;
+    const data2 = previousImageData.data;
+    const step = 4 * 10; // Проверяем каждый 10-й пиксель для скорости
+
+    for (let i = 0; i < data1.length; i += step) {
+      const rDiff = Math.abs(data1[i] - data2[i]);
+      const gDiff = Math.abs(data1[i+1] - data2[i+1]);
+      const bDiff = Math.abs(data1[i+2] - data2[i+2]);
+      diffScore += (rDiff + gDiff + bDiff);
+    }
+
+    previousImageData = currentImageData;
+
+    // Настраиваемый порог движения (зависит от разрешения, нужно тестировать)
+    const motionThreshold = (data1.length / step) * 20; 
+
+    if (diffScore > motionThreshold) {
+      // Телефон двигается
+      steadyFramesCount = 0;
+      statusEl.className = "alert alert-warning py-2 fw-medium mb-3";
+      statusEl.innerHTML = "<i class='bi bi-phone-vibrate'></i> Наведите на текст и замрите...";
+      ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height); // стираем старые квадраты
+    } else {
+      // Телефон неподвижен
+      steadyFramesCount++;
+      statusEl.className = "alert alert-success py-2 fw-medium mb-3";
+      statusEl.innerHTML = "<i class='bi bi-check-circle'></i> Фокус пойман. Анализ...";
+
+      // Если телефон неподвижен достаточно долго -> стреляем на сервер!
+      if (steadyFramesCount >= STEADY_THRESHOLD) {
+        steadyFramesCount = 0; // Сбрасываем счетчик
+        sendFrameToServer(hiddenCanvas.toDataURL('image/jpeg', 0.8));
+      }
+    }
+  }
+
+  // Отправка кадра на FastAPI
+  async function sendFrameToServer(base64Image) {
+    isScanning = true;
+    
+    // Вспышка экрана (Визуальный фидбек для инспектора)
+    flashEl.classList.remove('active');
+    void flashEl.offsetWidth; // трюк для перезапуска анимации
+    flashEl.classList.add('active');
+
+    statusEl.innerHTML = "<i class='bi bi-cloud-arrow-up'></i> Отправка на сервер...";
+    
+    try {
+      /* * ТУТ БУДЕТ РЕАЛЬНЫЙ FETCH ЗАПРОС К ТВОЕМУ FASTAPI
+       * * const response = await fetch('/api/ocr/analyze', {
+       * method: 'POST',
+       * headers: { 'Content-Type': 'application/json' },
+       * body: JSON.stringify({ image: base64Image, step: "settings_about" })
+       * });
+       * const data = await response.json();
+       */
+
+      // --- ИМИТАЦИЯ ОТВЕТА ОТ СЕРВЕРА (Удали это, когда напишешь бэкенд) ---
+      await new Promise(r => setTimeout(r, 1000)); // Ждем 1 сек
+      const data = {
+        status: "partial", // Сервер нашел серийник, но говорит листать вниз
+        hint: "Серийный номер найден. Пролистайте вниз до IMEI.",
+        boxes: [
+          { text: "Серийный номер", x: 50, y: 150, w: 200, h: 40 },
+          { text: "F17GF83...", x: 300, y: 150, w: 150, h: 40 }
+        ]
+      };
+      // -------------------------------------------------------------------
+
+      // Отрисовываем квадратики от сервера
+      drawServerBoxes(data.boxes);
+
+      // Выводим подсказку от сервера
+      if (data.status === "error") {
+        hintEl.className = "text-danger fw-bold small mt-2";
+        hintEl.innerText = data.hint;
+      } else if (data.status === "partial") {
+        hintEl.className = "text-warning fw-bold small mt-2";
+        hintEl.innerHTML = `<i class="bi bi-arrow-down-circle"></i> ${data.hint}`;
+      } else if (data.status === "success") {
+        hintEl.className = "text-success fw-bold small mt-2";
+        hintEl.innerText = "Данные успешно считаны! Переход...";
+        // setTimeout(() => nextStep(3), 2000); // Авто-переход дальше
+      }
+
+    } catch (e) {
+      console.error(e);
+      hintEl.innerText = "Ошибка связи с сервером.";
+    }
+
+    // Возобновляем сканирование через 2 секунды (чтобы инспектор успел прочитать/пролистать)
+    setTimeout(() => { isScanning = false; ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height); }, 2000);
+  }
+
+  // Функция рисования квадратиков
+  function drawServerBoxes(boxes) {
+    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    if (!boxes) return;
+
+    boxes.forEach(box => {
+      // Рисуем рамку
+      ctx.strokeStyle = "#0d6efd"; // Синий цвет
+      ctx.lineWidth = 3;
+      ctx.strokeRect(box.x, box.y, box.w, box.h);
+      
+      // Рисуем полупрозрачный фон
+      ctx.fillStyle = "rgba(13, 110, 253, 0.2)";
+      ctx.fillRect(box.x, box.y, box.w, box.h);
+    });
+  }
+</script>
+{% endblock %}

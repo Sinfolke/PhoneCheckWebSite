@@ -38,16 +38,28 @@ document.addEventListener("DOMContentLoaded", function() {
             updateCoordinates(e.latlng.lat, e.latlng.lng);
         });
 
-        // === НОВЫЙ КОД: ПОИСК ПО АДРЕСУ ===
+    // === НОВЫЙ КОД: ПОИСК ПО АДРЕСУ (С АВТОДОПОЛНЕНИЕМ И ФИЛЬТРОМ) ===
         // Проверяем, загрузился ли плагин поиска
         if (L.Control.Geocoder) {
+
+            // Настраиваем провайдера (базу данных) для поиска
+            const geocoderProvider = L.Control.Geocoder.nominatim({
+                geocodingQueryParams: {
+                    countrycodes: 'ua', // Жестко ограничиваем поиск только Украиной
+                    "accept-language": "ru,uk" // Просим отдавать названия на русском/украинском
+                }
+            });
+
             L.Control.geocoder({
-                defaultMarkGeocode: false, // Отключаем стандартный маркер плагина
-                placeholder: "Поиск адреса (например: Полтава, Центр)..." // Текст в строке поиска
+                geocoder: geocoderProvider, // Подключаем наши настройки (Украина)
+                defaultMarkGeocode: false,
+                placeholder: "Cоборності 50",
+                suggestMinLength: 3, // Начинать автопоиск после ввода 3-х символов
+                suggestTimeout: 500  // Ждать 500 мс после последнего нажатия клавиши (защита от бана OSM)
             })
             .on('markgeocode', function(e) {
-                const center = e.geocode.center; // Получаем координаты найденного места
-                const bbox = e.geocode.bbox;     // Получаем границы места для масштабирования
+                const center = e.geocode.center;
+                const bbox = e.geocode.bbox;
 
                 // 1. Приближаем карту к найденному адресу
                 map.fitBounds(bbox);
@@ -58,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 // 3. Записываем новые координаты в скрытые input'ы формы
                 updateCoordinates(center.lat, center.lng);
             })
-            .addTo(map); // Добавляем кнопку поиска на карту
+            .addTo(map);
         }
     }
 });

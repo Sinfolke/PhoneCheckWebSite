@@ -21,7 +21,7 @@
         <div class="card border-0 shadow-sm rounded-4">
           <div class="card-body p-4 p-md-5">
 
-            <form action="/order/full-check" method="POST">
+            <form action="/create_order" method="POST">
 
               <h5 class="fw-bold mb-4 border-bottom pb-2">Контактные данные</h5>
               <div class="row g-3 mb-4">
@@ -71,6 +71,7 @@
                 </div>
                 <input type="hidden" id="city" value="{{ city or 'Poltava' }}">
               </div>
+
               <h5 class="fw-bold mb-3 border-bottom pb-2 mt-5">Место встречи</h5>
               <p class="text-muted small mb-3">Укажите на карте примерное место, где вы планируете встретиться с продавцом.</p>
 
@@ -79,6 +80,31 @@
               <input type="hidden" id="lat" name="latitude" value="49.5895">
               <input type="hidden" id="lng" name="longitude" value="34.5513">
 
+              <h5 class="fw-bold mb-3 border-bottom pb-2 mt-5">Детали встречи и оплата</h5>
+              <div class="row g-3 mb-4">
+
+                <div class="col-md-6">
+                  <label for="meetingTime" class="form-label fw-medium text-muted small">Желаемое время <span class="text-secondary fw-normal">(примерно)</span></label>
+                  <input type="datetime-local"
+                         class="form-control form-control-lg rounded-3 bg-light border-0"
+                         id="meetingTime"
+                         name="meeting_time"
+                         required>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="paymentMethod" class="form-label fw-medium text-muted small">Способ оплаты</label>
+                  <select class="form-select form-select-lg rounded-3 bg-light border-0 text-dark"
+                          id="paymentMethod"
+                          name="payment_method"
+                          required>
+                    <option value="cash" selected>Наличными после проверки</option>
+                    <option value="card">Перевод на карту после проверки</option>
+                    <option value="card-now">Картой сейчас</option>
+                  </select>
+                </div>
+
+              </div>
               <div class="alert alert-primary bg-opacity-10 border-0 d-flex align-items-center rounded-3 mt-4" role="alert">
                 <i class="bi bi-info-circle-fill fs-4 text-primary me-3"></i>
                 <div class="small text-dark">

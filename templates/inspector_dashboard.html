@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-light min-vh-100 py-5">
+  <div class="container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-bold text-dark">Рабочая панель проверяющего</h2>
+        <p class="text-muted">Специалист: {{ user.name }}</p>
+      </div>
+      <span class="badge bg-primary px-3 py-2 rounded-pill fs-6">
+        <i class="bi bi-shield-check me-1"></i> Режим инспектора
+      </span>
+    </div>
+
+    <h4 class="fw-bold mb-3">Мои выезды</h4>
+    <div class="row g-4 mb-5">
+      {% for task in active_tasks %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-top {% if task.status == 'pending' %}border-danger{% else %}border-warning{% endif %} border-4">
+          <div class="card-body p-4 d-flex flex-column">
+
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              {% if task.status == 'assigned' %}
+                <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1"><i class="bi bi-bell-fill me-1"></i> Новое</span>
+              {% elif task.status == 'accepted' %}
+                <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-2 py-1"><i class="bi bi-bell-fill me-1"></i> Обсуждается</span>
+              {% else %}
+                <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-2 py-1"><i class="bi bi-tools me-1"></i> В работе</span>
+              {% endif %}
+              <span class="text-muted small fw-bold"><i class="bi bi-calendar-event me-1"></i> {{ task.meeting_time.replace('T', ' ') }}</span>
+            </div>
+
+            <h5 class="fw-bold text-dark mb-1">{{ task.device_model }}</h5>
+            <p class="text-muted small mb-3">
+              <i class="bi bi-person me-1"></i> {{ task.client_name }}
+              {% if task.ad_link %}
+                <a href="{{ task.ad_link }}" target="_blank" class="badge bg-light text-primary border text-decoration-none ms-2 shadow-sm">
+                  <i class="bi bi-link-45deg"></i> Объявление
+                </a>
+              {% endif %}
+            </p>
+
+            <div class="bg-light p-3 rounded-3 mb-4 flex-grow-1">
+              {% if task.status == 'accepted' or task.status == 'in_progress' %}
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                  <div>
+                    <i class="bi bi-telephone text-primary me-2"></i>
+                    <a href="tel:{{ task.contact }}" class="text-decoration-none text-dark fw-medium fs-5">{{ task.contact }}</a>
+                  </div>
+                  <button onclick="navigator.clipboard.writeText('{{ task.contact }}')" class="btn btn-sm btn-light border text-muted" title="Копировать">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
+
+                <div class="d-flex gap-2 mb-3">
+                  <a href="https://t.me/{{ task.contact.replace(' ', '').replace('-', '') }}" target="_blank" class="btn btn-sm w-100 text-white" style="background-color: #2AABEE;">
+                    <i class="bi bi-telegram me-1"></i> Telegram
+                  </a>
+                  <a href="viber://chat?number={{ task.contact.replace('+', '').replace(' ', '').replace('-', '') }}" target="_blank" class="btn btn-sm w-100 text-white" style="background-color: #7360F2;">
+                    <i class="bi bi-chat-quote me-1"></i> Viber
+                  </a>
+                </div>
+
+                <div>
+                  <i class="bi bi-geo-alt text-primary me-2"></i>
+                  <a href="http://googleusercontent.com/maps.google.com/4{{ task.latitude }},{{ task.longitude }}" target="_blank" class="text-decoration-none text-dark small fw-medium">Построить маршрут</a>
+                </div>
+
+              {% else %}
+                <div class="text-center text-muted small py-2">
+                  <i class="bi bi-lock fs-4 d-block mb-1 text-secondary"></i>
+                  Примите заказ, чтобы открыть контакты для связи и мессенджеры.
+                </div>
+                <div class="mt-2 text-center">
+                  <i class="bi bi-geo-alt text-primary me-1"></i>
+                  <a href="http://googleusercontent.com/maps.google.com/4{{ task.latitude }},{{ task.longitude }}" target="_blank" class="text-decoration-none text-muted small">Посмотреть район на карте</a>
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="d-grid gap-2">
+
+            {% if task.status == 'assigned' %}
+              <form action="/inspector/accept/{{ task.id }}" method="POST" class="m-0">
+                <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm py-2 fw-bold">
+                  <i class="bi bi-check-circle me-1"></i> Принять в работу
+                </button>
+              </form>
+
+            {% elif task.status == 'accepted' %}
+              <form action="/inspector/confirm/{{ task.id }}" method="POST" class="m-0">
+                <button type="submit" class="btn btn-info text-white w-100 rounded-pill shadow-sm py-2 fw-bold">
+                  <i class="bi bi-calendar-check me-1"></i> Назначить проверку (Согласовано)
+                </button>
+              </form>
+              <a href="/orders/{{ task.id }}" class="btn btn-outline-secondary btn-sm rounded-pill mt-1">
+                Детали заказа
+              </a>
+
+            {% elif task.status == 'in_progress' %}
+              <a href="/inspector/report/{{ task.id }}" class="btn btn-success w-100 rounded-pill shadow-sm py-2 fw-bold">
+                <i class="bi bi-ui-checks-grid me-1"></i> Начать проверку (Отчет)
+              </a>
+              <a href="/orders/{{ task.id }}" class="btn btn-outline-secondary btn-sm rounded-pill mt-1">
+                Детали заказа
+              </a>
+            {% endif %}
+
+            {% if task.status != 'in_progress' and task.status != 'completed' %}
+              <button class="btn btn-outline-danger btn-sm rounded-pill mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#cancelForm{{ task.id }}" aria-expanded="false">
+                <i class="bi bi-x-circle me-1"></i> Отказаться от заказа
+              </button>
+
+              <div class="collapse mt-1" id="cancelForm{{ task.id }}">
+                <div class="card card-body bg-light border-danger border-opacity-25 p-3 rounded-4 shadow-sm">
+                  <form action="/inspector/cancel/{{ task.id }}" method="POST" class="m-0">
+                    <label class="form-label small text-muted mb-1 fw-medium">Причина отказа:</label>
+                    <select name="cancel_reason" class="form-select form-select-sm mb-2 rounded-3 shadow-none border-secondary-subtle" required>
+                      <option value="" disabled selected>Выберите причину...</option>
+                      <option value="client_no_answer">Клиент не выходит на связь</option>
+                      <option value="too_far">Слишком далеко ехать</option>
+                      <option value="schedule_conflict">Не успеваю по времени</option>
+                      <option value="other">Другая причина</option>
+                    </select>
+
+                    <input type="text" name="cancel_comment" class="form-control form-control-sm mb-3 rounded-3 shadow-none border-secondary-subtle" placeholder="Уточните причину (кратко)...">
+
+                    <button type="submit" class="btn btn-danger btn-sm w-100 rounded-pill fw-bold shadow-sm">
+                      Подтвердить отказ
+                    </button>
+                  </form>
+                </div>
+              </div>
+            {% endif %}
+
+          </div>
+
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="col-12">
+        <div class="alert alert-secondary bg-white border-0 shadow-sm rounded-4 p-5 text-center">
+          <i class="bi bi-cup-hot fs-1 text-muted d-block mb-3"></i>
+          <h5 class="fw-bold text-dark">Выездов пока нет</h5>
+          <p class="text-muted mb-0">Когда администратор назначит вам проверку телефона, она появится здесь.</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

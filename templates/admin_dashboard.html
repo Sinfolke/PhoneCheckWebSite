@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-light min-vh-100 py-5">
+  <div class="container-fluid px-4 px-lg-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-bold text-dark mb-1">Панель управления (Admin)</h2>
+        <p class="text-muted mb-0">Командный центр PhoneCheck</p>
+      </div>
+      <span class="badge bg-danger px-3 py-2 rounded-pill fs-6 shadow-sm">
+        <i class="bi bi-person-workspace me-1"></i> Владелец
+      </span>
+    </div>
+
+    <ul class="nav nav-pills mb-4 bg-white p-2 rounded-pill shadow-sm d-inline-flex" id="mainAdminTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active rounded-pill fw-medium px-4" data-bs-toggle="pill" data-bs-target="#main-orders" type="button">
+          <i class="bi bi-card-list me-1"></i> Заказы
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-pill fw-medium px-4" data-bs-toggle="pill" data-bs-target="#main-users" type="button">
+          <i class="bi bi-people me-1"></i> Персонал и Юзеры
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="mainAdminTabsContent">
+
+      <div class="tab-pane fade show active" id="main-orders" role="tabpanel">
+
+        {% set pending_count = orders | selectattr("status", "equalto", "pending") | list | length %}
+        {% set in_progress_count = orders | selectattr("status", "equalto", "in_progress") | list | length %}
+        {% set completed_count = orders | selectattr("status", "equalto", "completed") | list | length %}
+
+        <div class="row g-4 mb-4">
+          <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-white">
+              <div class="card-body p-4 d-flex align-items-center">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-3"><i class="bi bi-list-task fs-4"></i></div>
+                <div><h4 class="fw-bold mb-0">{{ orders | length }}</h4><span class="text-muted small">Всего заказов</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-white">
+              <div class="card-body p-4 d-flex align-items-center">
+                <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-3 me-3"><i class="bi bi-exclamation-circle fs-4"></i></div>
+                <div><h4 class="fw-bold mb-0">{{ pending_count }}</h4><span class="text-muted small">Ждут назначения</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-white">
+              <div class="card-body p-4 d-flex align-items-center">
+                <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-3 me-3"><i class="bi bi-clock-history fs-4"></i></div>
+                <div><h4 class="fw-bold mb-0">{{ in_progress_count }}</h4><span class="text-muted small">В работе</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-white">
+              <div class="card-body p-4 d-flex align-items-center">
+                <div class="bg-success bg-opacity-10 text-success rounded-circle p-3 me-3"><i class="bi bi-check2-circle fs-4"></i></div>
+                <div><h4 class="fw-bold mb-0">{{ completed_count }}</h4><span class="text-muted small">Завершены</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ul class="nav nav-pills mb-4 gap-2" id="adminTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill fw-medium px-4" data-bs-toggle="pill" data-bs-target="#tab-all" type="button">Все заказы</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-medium px-4" data-bs-toggle="pill" data-bs-target="#tab-pending" type="button">Новые <span class="badge bg-danger ms-1">{{ pending_count }}</span></button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-medium px-4" data-bs-toggle="pill" data-bs-target="#tab-progress" type="button">В работе</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-medium px-4" data-bs-toggle="pill" data-bs-target="#tab-completed" type="button">Завершено</button>
+          </li>
+        </ul>
+
+        {% macro render_table(order_list) %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-muted small">
+              <tr>
+                <th class="ps-4 py-3">ID / Дата встречи</th>
+                <th class="py-3">Клиент / Контакт</th>
+                <th class="py-3">Устройство</th>
+                <th class="py-3">Статус</th>
+                <th class="pe-4 py-3" style="min-width: 250px;">Управление</th>
+              </tr>
+            </thead>
+            <tbody class="border-top-0">
+              {% for order in order_list %}
+              <tr>
+                <td class="ps-4">
+                  <span class="fw-bold text-dark d-block">#{{ order.id }}</span>
+                  <span class="small text-muted">{{ order.meeting_time.replace('T', ' ') }}</span>
+                </td>
+                <td>
+                  <span class="d-block fw-medium">{{ order.client_name }}</span>
+                  <a href="tel:{{ order.contact }}" class="small text-decoration-none">{{ order.contact }}</a>
+                </td>
+                <td>
+                  <span class="d-block fw-bold text-dark">{{ order.device_model }}</span>
+                  {% if order.is_paid %}
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill mt-1" style="font-size: 0.65rem;">Оплачено</span>
+                  {% else %}
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill mt-1" style="font-size: 0.65rem;">Не оплачено</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if order.status == 'pending' %}
+                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill"><i class="bi bi-clock"></i> Ожидает</span>
+                  {% elif order.status == 'assigned' %}
+                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill"><i class="bi bi-clock"></i> Назначен</span>
+                  {% elif order.status == 'accepted' %}
+                    <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill"><i class="bi bi-tools"></i> Обсуждается</span>
+                  {% elif order.status == 'in_progress' %}
+                    <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill"><i class="bi bi-tools"></i> В работе</span>
+                  {% else %}
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill"><i class="bi bi-check2"></i> Завершено</span>
+                  {% endif %}
+                </td>
+                <td class="pe-4">
+                  <div class="d-flex align-items-center gap-2">
+                    <a href="/orders/{{ order.id }}" class="btn btn-sm btn-outline-secondary rounded-3 px-2 shadow-sm" title="Подробнее">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    {% if order.status != 'completed' %}
+                    <form action="/admin/assign-inspector/{{ order.id }}" method="POST" class="d-flex gap-2 w-100">
+                      <select name="inspector_id" class="form-select form-select-sm rounded-3 shadow-none border-secondary-subtle" required>
+                        <option value="" disabled {% if not order.inspector_id %}selected{% endif %}>Сотрудник...</option>
+                        {% for inspector in inspectors %}
+                          <option value="{{ inspector.id }}" {% if order.inspector_id == inspector.id %}selected{% endif %}>
+                            {{ inspector.name }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                      <button type="submit" class="btn btn-sm btn-primary rounded-3 px-2 shadow-sm"><i class="bi bi-check-lg"></i></button>
+                    </form>
+                    {% else %}
+                      <span class="text-muted small w-100"><i class="bi bi-person-check"></i> Инспектор назначен</span>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                  <i class="bi bi-inbox fs-1 d-block mb-2 text-light"></i>
+                  В этой категории нет заказов
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endmacro %}
+
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-body p-0">
+            <div class="tab-content" id="adminTabsContent">
+              <div class="tab-pane fade show active" id="tab-all" role="tabpanel">
+                {{ render_table(orders) }}
+              </div>
+              <div class="tab-pane fade" id="tab-pending" role="tabpanel">
+                {{ render_table(orders | selectattr("status", "equalto", "pending") | list) }}
+              </div>
+              <div class="tab-pane fade" id="tab-progress" role="tabpanel">
+                {{ render_table(orders | selectattr("status", "equalto", "in_progress") | list) }}
+              </div>
+              <div class="tab-pane fade" id="tab-completed" role="tabpanel">
+                {{ render_table(orders | selectattr("status", "equalto", "completed") | list) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="tab-pane fade" id="main-users" role="tabpanel">
+        <div class="row g-4">
+
+          <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 90px;">
+              <div class="card-body p-4">
+                <h5 class="fw-bold mb-4 border-bottom pb-2">Добавить проверяющего</h5>
+                <form action="/admin/create-inspector" method="POST">
+                  <div class="mb-3">
+                    <label class="form-label text-muted small fw-medium">Имя сотрудника</label>
+                    <input type="text" name="name" class="form-control bg-light border-0" placeholder="Олег..." required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label text-muted small fw-medium">Email (логин)</label>
+                    <input type="email" name="email" class="form-control bg-light border-0" placeholder="oleg@test.com" required>
+                  </div>
+                  <div class="mb-4">
+                    <label class="form-label text-muted small fw-medium">Пароль</label>
+                    <input type="password" name="password" class="form-control bg-light border-0" placeholder="Введите пароль..." required>
+                  </div>
+                  <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">Зарегистрировать</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+              <div class="card-body p-0">
+                <div class="p-4 border-bottom">
+                  <h5 class="fw-bold mb-0">Все пользователи системы</h5>
+                </div>
+
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small">
+                      <tr>
+                        <th class="ps-4 py-3">ID / Имя</th>
+                        <th class="py-3">Email</th>
+                        <th class="py-3">Текущая роль</th>
+                        <th class="pe-4 py-3" style="min-width: 200px;">Изменить роль</th>
+                      </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                      {% for u in all_users %}
+                      <tr>
+                        <td class="ps-4">
+                          <span class="fw-bold text-dark d-block">#{{ u.id }}</span>
+                          <span class="fw-medium">{{ u.name }}</span>
+                        </td>
+                        <td><span class="text-muted small">{{ u.email }}</span></td>
+                        <td>
+                          {% if u.role == 'admin' %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill"><i class="bi bi-shield-lock me-1"></i> Админ</span>
+                          {% elif u.role == 'inspector' %}
+                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill"><i class="bi bi-search me-1"></i> Инспектор</span>
+                          {% else %}
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill"><i class="bi bi-person me-1"></i> Клиент</span>
+                          {% endif %}
+                        </td>
+                        <td class="pe-4">
+                          <form action="/admin/change-role/{{ u.id }}" method="POST" class="d-flex gap-2">
+                            <select name="new_role" class="form-select form-select-sm rounded-3 shadow-none border-secondary-subtle" {% if u.id == user.id %}disabled{% endif %}>
+                              <option value="client" {% if u.role == 'client' %}selected{% endif %}>Клиент</option>
+                              <option value="inspector" {% if u.role == 'inspector' %}selected{% endif %}>Инспектор</option>
+                              <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>Админ</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-outline-primary rounded-3 px-2 shadow-sm" {% if u.id == user.id %}disabled{% endif %}>
+                              <i class="bi bi-save"></i>
+                            </button>
+                          </form>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

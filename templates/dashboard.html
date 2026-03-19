@@ -20,7 +20,7 @@
 
             <div class="nav flex-column gap-2">
               <a href="/dashboard" class="nav-link active bg-primary bg-opacity-10 text-primary rounded-3 fw-medium px-3 py-2">
-                <i class="bi bi-phone-vibrate me-2"></i> IMEI Проверка
+                <i class="bi bi-phone-vibrate me-2"></i> Проверка
               </a>
               <a href="/dashboard/orders" class="nav-link text-dark rounded-3 fw-medium px-3 py-2 hover-bg-light">
                 <i class="bi bi-card-list me-2"></i> Заказы
@@ -109,16 +109,82 @@
             </div>
           </div>
         </div>
+        {% if pending_checks %}
+        <div class="card border-0 shadow-sm rounded-4 mb-4 border-start border-warning border-4">
+          <div class="card-body p-4">
+            <h5 class="fw-bold mb-4 text-dark">Незавершенные проверки</h5>
+
+            <div class="d-flex flex-column gap-3">
+              {% for check in pending_checks %}
+              <div class="d-flex justify-content-between align-items-center flex-wrap bg-light p-3 rounded-4 border">
+
+                <div class="d-flex align-items-start mb-2 mb-md-0 flex-grow-1">
+                  <div class="bg-white rounded-circle p-2 shadow-sm me-3 text-center flex-shrink-0 mt-1" style="width: 42px; height: 42px; line-height: 26px;">
+                    <i class="bi bi-hourglass-split text-warning fs-5"></i>
+                  </div>
+                  <div>
+                    <h6 class="fw-bold text-dark mb-2">{{ check.device_model }}</h6>
+
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                      <span class="badge bg-white text-dark border fw-normal shadow-sm">
+                        <i class="bi bi-calendar-event text-primary me-1"></i> {{ check.meeting_time.replace('T', ' ') }}
+                      </span>
+
+                      <a href="https://maps.google.com/?q={{ check.latitude }},{{ check.longitude }}" target="_blank" class="badge bg-white text-primary border text-decoration-none fw-normal shadow-sm transition-all hover-bg-light">
+                        <i class="bi bi-geo-alt-fill me-1"></i> Открыть карту
+                      </a>
+                    </div>
+
+                    <span class="text-muted small font-monospace">{{ check.imei | default('Ожидает осмотра', true) }}</span>
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center flex-wrap gap-2 mt-2 mt-md-0">
+
+                  {% if check.is_paid %}
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-2 rounded-pill small">
+                      <i class="bi bi-wallet2 me-1"></i> Оплачено
+                    </span>
+                  {% else %}
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-2 py-2 rounded-pill small">
+                      <i class="bi bi-wallet2 me-1"></i> Не оплачено
+                    </span>
+                  {% endif %}
+
+                  {% if check.status == 'pending' %}
+                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill"><i class="bi bi-clock"></i> Ожидает</span>
+                  {% elif check.status == 'assigned' %}
+                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill"><i class="bi bi-clock"></i> Назначен</span>
+                  {% elif check.status == 'accepted' %}
+                    <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill"><i class="bi bi-tools"></i> Обсуждается</span>
+                  {% elif check.status == 'in_progress' %}
+                    <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill"><i class="bi bi-tools"></i> В работе</span>
+                  {% else %}
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill"><i class="bi bi-check2"></i> Завершено</span>
+                  {% endif %}
+
+                  <a href="/orders/{{ check.id }}" class="btn btn-sm btn-warning text-dark fw-medium rounded-pill px-3 shadow-sm ms-2">
+                    Детали
+                  </a>
+                </div>
+
+              </div>
+              {% endfor %}
+            </div>
+
+          </div>
+        </div>
+        {% endif %}
 
         {% if last_check %}
         <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
           <div class="card-body p-4">
-            <h5 class="fw-bold mb-4 text-dark">Последняя проверка</h5>
+            <h5 class="fw-bold mb-4 text-dark">Последняя завершенная проверка</h5>
 
             <div class="d-flex justify-content-between align-items-center flex-wrap bg-light p-3 rounded-4 border">
               <div class="d-flex align-items-center mb-2 mb-sm-0">
-                <div class="bg-white rounded-circle p-2 shadow-sm me-3">
-                  <i class="bi bi-phone text-secondary fs-4"></i>
+                <div class="bg-white rounded-circle p-2 shadow-sm me-3 text-center" style="width: 42px; height: 42px; line-height: 26px;">
+                  <i class="bi bi-phone text-secondary fs-5"></i>
                 </div>
                 <div>
                   <h6 class="fw-bold text-dark mb-0">{{ last_check.model }}</h6>
@@ -162,7 +228,7 @@
                 <tbody class="border-top-0">
                   {% for check in recent_checks %}
                   <tr>
-                    <td><span class="badge bg-light text-dark border font-monospace px-2 py-1">{{ check.imei }}</span></td>
+                    <td><span class="badge bg-light text-dark border font-monospace px-2 py-1">{{ check.imei | default('-', true) }}</span></td>
                     <td class="fw-medium">{{ check.model }}</td>
                     <td>
                       {% if check.status == 'clean' %}

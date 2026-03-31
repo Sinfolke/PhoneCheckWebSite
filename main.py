@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request, Depends, HTTPException, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -12,6 +13,7 @@ import routers.account
 import routers.order
 import routers.admin
 import routers.inspector
+import routers.OCR
 from models.order import OrderDB
 from repositories.database import engine, Base, get_db  # Импортируй свои engine и Base
 from models.account import User
@@ -32,6 +34,8 @@ app = FastAPI(lifespan=lifespan)
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 config = config_md.readYaml("config.yaml")
+# 1. ЗАГРУЖАЕМ НЕЙРОСЕТЬ ОДИН РАЗ ПРИ СТАРТЕ СЕРВЕРА
+# gpu=False (если на сервере нет видеокарты NVIDIA). Если есть - ставь True, будет летать!
 @app.get("/")
 def root(request: Request, lang: str = "ua"):
     return templates.TemplateResponse("main.html", {
@@ -203,3 +207,4 @@ app.include_router(routers.account.router)
 app.include_router(routers.order.router)
 app.include_router(routers.admin.router)
 app.include_router(routers.inspector.router)
+app.include_router(routers.OCR.router)

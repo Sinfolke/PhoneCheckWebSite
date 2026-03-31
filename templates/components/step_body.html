@@ -1,0 +1,58 @@
+{% import "components/report_macros.html" as ui %}
+{% call ui.step_card(1, 'Шаг 1: Корпус и задняя крышка', 'bi-phone', 'photo', True) %}
+  {{ ui.select_box('Общее состояние корпуса', 'body_condition', [
+    {'value':'perfect','label':'Идеальное'},
+    {'value':'light_wear','label':'Минимальные следы использования'},
+    {'value':'visible_wear','label':'Заметные следы использования'},
+    {'value':'heavy_damage','label':'Сильные повреждения'}
+  ], true) }}
+
+  <div class="mb-4">
+    <label class="form-label fw-bold">Отмеченные дефекты корпуса</label>
+    {{ ui.checkbox_grid('body_defects', [
+      {'value':'micro_scratches','id':'body_micro_scratches','label':'Микроцарапины'},
+      {'value':'scratches','id':'body_scratches','label':'Царапины'},
+      {'value':'scuffs','id':'body_scuffs','label':'Потертости'},
+      {'value':'chips','id':'body_chips','label':'Сколы'},
+      {'value':'dents','id':'body_dents','label':'Вмятины'},
+      {'value':'cracks','id':'body_cracks','label':'Трещины'},
+      {'value':'frame_damage','id':'body_frame_damage','label':'Повреждение рамки'},
+      {'value':'back_cover_damage','id':'body_back_cover_damage','label':'Повреждение задней крышки'}
+    ]) }}
+  </div>
+
+
+  {% call ui.phone_capture_tabs('body_photo_tabs', 'Фото корпуса') %}
+    {{ ui.phone_capture_tab_button('body_tab_back', 1, 'Задняя крышка', True) }}
+    {{ ui.phone_capture_tab_button('body_tab_edges', 2, 'Грани / углы', False) }}
+  {% endcall %}
+
+  {% call ui.phone_capture_tabs_content() %}
+    {{ ui.phone_capture_tab(
+        'body_tab_back',
+        'Задняя крышка',
+        'Фото задней крышки',
+        'body_back_photo',
+        'preview-body-back',
+        'Фото задней крышки',
+        True,
+        'Наведите заднюю крышку на сканер, чтобы захватить весь телефон',
+        'Убедитесь в хорошем качестве фото',
+    ) }}
+
+    {{ ui.phone_capture_tab(
+        'body_tab_edges',
+        'Грани / углы',
+        'Фото граней / углов',
+        'body_edges_photo',
+        'preview-body-edges',
+        'Фото граней / углов',
+        False,
+        'Наведите заднюю крышку на сканер, чтобы захватить весь телефон',
+        'Убедитесь в хорошем качестве фото',
+    ) }}
+  {% endcall %}
+
+  {{ ui.comment_box('Комментарий инспектора', 'body_comment', 'Например: потертости на нижней грани, небольшой скол на углу') }}
+  {{ ui.step_actions('Далее: Экран', true) }}
+{% endcall %}

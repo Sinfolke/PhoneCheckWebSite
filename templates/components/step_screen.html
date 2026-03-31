@@ -1,0 +1,53 @@
+{% import "components/report_macros.html" as ui %}
+
+{% call ui.step_card(2, 'Шаг 2: Экран', 'bi-display') %}
+  {{ ui.select_box('Общее состояние экрана', 'screen_condition', [
+    {'value':'perfect','label':'Идеальное'},
+    {'value':'light_wear','label':'Минимальные следы использования'},
+    {'value':'visible_wear','label':'Заметные следы использования'},
+    {'value':'heavy_damage','label':'Сильные повреждения'}
+  ], true) }}
+
+  <div class="mb-4">
+    <label class="form-label fw-bold">Дефекты экрана</label>
+    {{ ui.checkbox_grid('screen_defects', [
+      {'value':'micro_scratches','id':'screen_micro_scratches','label':'Микроцарапины'},
+      {'value':'scratches','id':'screen_scratches','label':'Царапины'},
+      {'value':'deep_scratches','id':'screen_deep_scratches','label':'Глубокие царапины'},
+      {'value':'cracks','id':'screen_cracks','label':'Трещины'},
+      {'value':'chips','id':'screen_chips','label':'Сколы по краям'},
+      {'value':'broken_glass','id':'screen_broken_glass','label':'Разбитое стекло'},
+      {'value':'spots','id':'screen_spots','label':'Пятна / засветы'},
+      {'value':'burn_in','id':'screen_burn_in','label':'Выгорание'}
+    ]) }}
+  </div>
+  {% call ui.phone_capture_tabs('body_photo_tabs', 'Фото корпуса') %}
+      {{ ui.phone_capture_tab_button('screen_tab_main', 1, 'Экран прямо', True) }}
+      {{ ui.phone_capture_tab_button('screen_tab_angle', 2, 'Экран под углом', False) }}
+  {% endcall %}
+
+  {% call ui.phone_capture_tabs_content() %}
+      {{ ui.phone_capture_tab(
+          'screen_tab_main',
+          'Экран прямо',
+          'Фото экрана',
+          'screen_photo',
+          'preview-screen-main',
+          'Фото экрана',
+          True
+      ) }}
+
+      {{ ui.phone_capture_tab(
+          'screen_tab_angle',
+          'Экран под углом',
+          'Фото экрана под углом',
+          'screen_photo_angle',
+          'preview-screen-angle',
+          'Фото экрана под углом',
+          False
+      ) }}
+  {% endcall %}
+
+  {{ ui.comment_box('Комментарий инспектора', 'screen_comment', 'Например: микроцарапины видны под углом, трещин нет') }}
+  {{ ui.step_actions('Далее: Вскрытие') }}
+{% endcall %}

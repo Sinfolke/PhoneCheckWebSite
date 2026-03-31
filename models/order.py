@@ -38,3 +38,6 @@ class OrderDB(Base):
 
     status = Column(String, default="pending")
     is_paid = Column(Boolean, default=False)
+
+    imei = Column(String, nullable=False)
+    serial = Column(String, nullable=False)

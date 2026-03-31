@@ -22,9 +22,11 @@
               <a href="/dashboard" class="nav-link active bg-primary bg-opacity-10 text-primary rounded-3 fw-medium px-3 py-2">
                 <i class="bi bi-phone-vibrate me-2"></i> Проверка
               </a>
-              <a href="/dashboard/orders" class="nav-link text-dark rounded-3 fw-medium px-3 py-2 hover-bg-light">
+              {% if user.role == 'inspector' or user.role == 'admin' %}
+              <a href="/inspector/dashboard" class="nav-link text-dark rounded-3 fw-medium px-3 py-2 hover-bg-light">
                 <i class="bi bi-card-list me-2"></i> Заказы
               </a>
+              {% endif %}
               <a href="/dashboard/settings" class="nav-link text-dark rounded-3 fw-medium px-3 py-2 hover-bg-light">
                 <i class="bi bi-gear me-2"></i> Настройки
               </a>

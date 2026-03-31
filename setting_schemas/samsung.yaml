@@ -1,0 +1,68 @@
+about_phone:
+  name: "Про телефон"
+  label: true
+  phone_name:
+    name: "Назва пристрою"
+    label: false
+  model:
+    name: "Имя модели"
+    label: false
+  serial:
+    name: "Серийный номер"
+    label: false
+  phone_number_1:
+    name: "Номер телефону"
+    label: false
+    optional: true
+  operator1:
+    name: "Мережа"
+    label: false
+    optional: true
+  imei1:
+    name: "IMEI 1"
+    label: false
+  phone_number_2:
+    name: "Номер телефону"
+    label: false
+    optional: true
+  operator2:
+    name: "Мережа"
+    label: false
+    optional: true
+  imei2:
+    name: "IMEI 2"
+    label: false
+
+status_info:
+  name: "Інформація про стан"
+  label: true
+legal_info:
+  name: "Юридична інформація"
+  label: true
+hardware_info:
+  name: "Відомості про ПЗ"
+  label: true
+battery_info:
+  name: "Відомості про батарею"
+  label: true
+  charging_status:
+    name: "Стан акумулятора"
+    label: false
+  charging_level:
+    name: "Рівень заряду акумулятора"
+    label: false
+  capacity:
+    name: "Ємність батареї"
+    label: false
+  state:
+    name: "Стан батареї"
+    label: false
+  cycles:
+    name: "Кількість циклів батареї"
+    label: false
+  manufacturing_date:
+    name: "Дата виробництва"
+    label: false
+  first_usage_data:
+    name: "Дата першого використання"
+    label: false

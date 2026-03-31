@@ -1,0 +1,50 @@
+{% import "components/report_macros.html" as ui %}
+
+{% call ui.step_card(5, 'Шаг 5: Загрязнение отверстий и портов', 'bi-wind') %}
+  <div class="mb-4">
+    <label class="form-label fw-bold">Зоны загрязнения</label>
+    {{ ui.checkbox_grid('dust_zones', [
+      {'value':'earpiece','id':'dust_earpiece','label':'Разговорный динамик'},
+      {'value':'bottom_speaker','id':'dust_bottom_speaker','label':'Нижний динамик'},
+      {'value':'microphone','id':'dust_microphone','label':'Микрофон'},
+      {'value':'usb_port','id':'dust_usb_port','label':'USB-порт'},
+      {'value':'sim_tray','id':'dust_sim_tray','label':'SIM-лоток'}
+    ]) }}
+  </div>
+
+  {{ ui.select_box('Степень загрязнения', 'dust_level', [
+    {'value':'clean','label':'Чисто'},
+    {'value':'moderate','label':'Умеренно загрязнено'},
+    {'value':'heavy','label':'Сильно загрязнено'}
+  ], true) }}
+
+  {% call ui.phone_capture_tabs('body_photo_tabs', 'Фото корпуса') %}
+      {{ ui.phone_capture_tab_button('dust_tab_ports', 1, 'Порты', True) }}
+      {{ ui.phone_capture_tab_button('dust_tab_speakers', 2, 'Динамики / сетки', False) }}
+  {% endcall %}
+
+  {% call ui.phone_capture_tabs_content() %}
+      {{ ui.phone_capture_tab(
+          'dust_tab_ports',
+          'Порты',
+          'Фото портов / отверстий',
+          'dust_photo',
+          'preview-dust-ports',
+          'Фото портов',
+          True
+      ) }}
+
+      {{ ui.phone_capture_tab(
+          'dust_tab_speakers',
+          'Динамики / сетки',
+          'Фото динамиков / сеток',
+          'dust_speakers_photo',
+          'preview-dust-speakers',
+          'Фото динамиков',
+          False
+      ) }}
+  {% endcall %}
+
+  {{ ui.comment_box('Комментарий инспектора', 'dust_comment', 'Например: нижний динамик и USB-порт умеренно загрязнены') }}
+  {{ ui.step_actions('Далее: Системные данные') }}
+{% endcall %}

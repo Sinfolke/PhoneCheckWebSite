@@ -1,0 +1,68 @@
+about_phone:
+  name: "About phone"
+  label: true
+  phone_name:
+    name: "Product name"
+    label: false
+  model:
+    name: "Model name"
+    label: false
+  serial:
+    name: "Serial number"
+    label: false
+  phone_number_1:
+    name: "Phone number"
+    label: false
+    optional: true
+  operator1:
+    name: "Network"
+    label: false
+    optional: true
+  imei1:
+    name: "IMEI 1"
+    label: false
+  phone_number_2:
+    name: "Phone number"
+    label: false
+    optional: true
+  operator2:
+    name: "Network"
+    label: false
+    optional: true
+  imei2:
+    name: "IMEI 2"
+    label: false
+
+  status_info:
+    name: "Status information"
+    label: true
+  legal_info:
+    name: "Legal information"
+    label: true
+  hardware_info:
+    name: "Software information"
+    label: true
+  battery_info:
+    name: "Battery information"
+    label: true
+    charging_status:
+      name: "Battery status"
+      label: false
+    charging_level:
+      name: "Battery level"
+      label: false
+    capacity:
+      name: "Battery capacity"
+      label: false
+    state:
+      name: "Battery health"
+      label: false
+    cycles:
+      name: "Battery cycle count"
+      label: false
+    manufacture_date:
+      name: "Manufacture date"
+      label: false
+    first_used_date:
+      name: "First used date"
+      label: false

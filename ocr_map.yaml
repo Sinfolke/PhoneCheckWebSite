@@ -1,0 +1,8 @@
+imei:
+  - about_phone.imei1
+
+battery:
+  - about_phone.battery_info.state
+  - about_phone.battery_info.cycles
+  - about_phone.battery_info.manufacture_date
+  - about_phone.battery_info.first_used_date

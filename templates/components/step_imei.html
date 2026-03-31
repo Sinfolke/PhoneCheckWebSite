@@ -1,0 +1,8 @@
+{% import "components/report_macros.html" as ui %}
+
+{% call ui.step_card(6, 'Шаг 6: IMEI и Серийный номер', 'bi-cpu', 'ocr', false, "data-scanner='imei'")  %}
+  <div class="scanner-mount mb-3"></div>
+  <div class="mt-4">
+    {{ ui.step_actions('Далее: Батарея', false) }}
+  </div>
+{% endcall %}

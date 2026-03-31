@@ -1,0 +1,49 @@
+{% import "components/report_macros.html" as ui %}
+
+{% call ui.step_card(4, 'Шаг 4: Следы попадания влаги', 'bi-droplet-half') %}
+  {{ ui.select_box('Состояние LDI', 'ldi_status', [
+    {'value':'clean','label':'Индикатор чистый'},
+    {'value':'triggered','label':'Индикатор сработал'},
+    {'value':'not_checked','label':'Не удалось проверить'}
+  ], true) }}
+
+  <div class="mb-4">
+    <label class="form-label fw-bold">Признаки влаги</label>
+    {{ ui.checkbox_grid('water_signs', [
+      {'value':'oxidation_sim','id':'oxidation_sim','label':'Окисление в SIM-лотке'},
+      {'value':'oxidation_port','id':'oxidation_port','label':'Следы окисления в разъёме'},
+      {'value':'camera_fogging','id':'camera_fogging','label':'Запотевание камеры'},
+      {'value':'other_moisture_signs','id':'other_moisture_signs','label':'Другие признаки влаги'}
+    ]) }}
+  </div>
+
+  {% call ui.phone_capture_tabs('body_photo_tabs', 'Фото корпуса') %}
+      {{ ui.phone_capture_tab_button('water_tab_ldi', 1, 'LDI', True) }}
+      {{ ui.phone_capture_tab_button('water_tab_sim', 2, 'SIM-лоток', False) }}
+  {% endcall %}
+
+  {% call ui.phone_capture_tabs_content() %}
+      {{ ui.phone_capture_tab(
+          'water_tab_ldi',
+          'LDI',
+          'Фото LDI',
+          'ldi_photo',
+          'preview-ldi',
+          'Фото LDI',
+          True
+      ) }}
+
+      {{ ui.phone_capture_tab(
+          'water_tab_sim',
+          'SIM-лоток',
+          'Фото SIM-лотка',
+          'sim_tray_photo',
+          'preview-sim-tray',
+          'Фото SIM-лотка',
+          False
+      ) }}
+  {% endcall %}
+
+  {{ ui.comment_box('Комментарий инспектора', 'water_comment', 'Например: LDI белый, следов коррозии нет') }}
+  {{ ui.step_actions('Далее: Загрязнение') }}
+{% endcall %}

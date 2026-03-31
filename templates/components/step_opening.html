@@ -1,0 +1,60 @@
+{% import "components/report_macros.html" as ui %}
+
+{% call ui.step_card(3, 'Шаг 3: Следы вскрытия / ремонта', 'bi-tools') %}
+  {{ ui.select_box('Итоговая оценка', 'opening_status', [
+    {'value':'none','label':'Следов вскрытия не обнаружено'},
+    {'value':'indirect','label':'Есть косвенные признаки'},
+    {'value':'clear','label':'Есть явные признаки вскрытия / ремонта'}
+  ], true) }}
+
+  <div class="mb-3">
+    <label class="form-label fw-bold">Признаки по крышке / корпусу</label>
+    {{ ui.checkbox_grid('opening_signs_body', [
+      {'value':'uneven_back_cover','id':'uneven_back_cover','label':'Неровная крышка'},
+      {'value':'gaps','id':'opening_gaps','label':'Увеличенные зазоры'},
+      {'value':'glue_marks','id':'glue_marks','label':'Следы клея'},
+      {'value':'pry_marks','id':'pry_marks','label':'Следы поддевания'},
+      {'value':'dust_under_camera_glass','id':'dust_under_camera_glass','label':'Пыль под стеклом камеры'},
+      {'value':'blurred_camera','id':'blurred_camera','label':'Мутность / размытость камеры'}
+    ]) }}
+  </div>
+
+  <div class="mb-4">
+    <label class="form-label fw-bold">Признаки по экрану</label>
+    {{ ui.checkbox_grid('opening_signs_screen', [
+      {'value':'uneven_screen','id':'uneven_screen','label':'Неровно посажен экран'},
+      {'value':'glue_under_screen','id':'glue_under_screen','label':'Следы клея по периметру экрана'},
+      {'value':'screen_lift','id':'screen_lift','label':'Экран выступает / отходит'},
+      {'value':'opened_screws','id':'opened_screws','label':'Следы вскрытия винтов'}
+    ]) }}
+  </div>
+  {% call ui.phone_capture_tabs('body_photo_tabs', 'Фото корпуса') %}
+      {{ ui.phone_capture_tab_button('opening_tab_body', 1, 'Корпус / крышка', True) }}
+      {{ ui.phone_capture_tab_button('opening_tab_screen', 2, 'Экран / швы', False) }}
+  {% endcall %}
+
+  {% call ui.phone_capture_tabs_content() %}
+      {{ ui.phone_capture_tab(
+          'opening_tab_body',
+          'Корпус / крышка',
+          'Фото подозрительных участков корпуса',
+          'opening_body_photo',
+          'preview-opening-body',
+          'Фото корпуса',
+          True
+      ) }}
+
+      {{ ui.phone_capture_tab(
+          'opening_tab_screen',
+          'Экран / швы',
+          'Фото подозрительных участков экрана',
+          'opening_screen_photo',
+          'preview-opening-screen',
+          'Фото экрана',
+          False
+      ) }}
+  {% endcall %}
+
+  {{ ui.comment_box('Комментарий инспектора', 'opening_comment', 'Например: крышка сидит неровно, видны следы клея в правом верхнем углу') }}
+  {{ ui.step_actions('Далее: Влага') }}
+{% endcall %}
